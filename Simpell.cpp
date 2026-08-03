@@ -172,6 +172,11 @@ else if (token[0] =="what"){
          << local->tm_mon + 1 << "/"
          << local->tm_year + 1900 << endl;
     }
+    else if(token[1]=="folder"){
+        char currentDir[MAX_PATH];
+        GetCurrentDirectoryA(MAX_PATH, currentDir);
+        cout << currentDir << endl;
+    }
 
 }
 else if(token[0]=="open"){
@@ -192,9 +197,48 @@ else if(token[0]=="text"){
         FILE *textFile = fopen(readFileName.c_str(), "r");
     }
 }
+else if(token[0]=="play"){
+string program;
+program = token[1];
+    ShellExecuteA(
+    NULL,
+    "open",
+    program.c_str(),
+    NULL,
+    NULL,
+    SW_SHOWNORMAL
+);
+    
+}
+else if(token[0]=="delete"){
+    string fileName = token[1];
+    remove(fileName.c_str());
+}
+
+else if(token[0]=="clear"){
+    system("cls");
+}
+else if(token[0] == "rename")
+{
+    string oldName = token[1];
+    string newName = token[2];
+
+    if(rename(oldName.c_str(), newName.c_str()) == 0)
+    {
+        cout << "Renamed successfully!\n";
+    }
+    else
+    {
+        cout << "Failed to rename.\n";
+    }
+}
+else if(token[0]=="credits"){
+    printf("Developed by Arnish!\n");
+}
+
 /*==========================================================================================*/
 else if(token[0]=="help" || token[0]=="helpme"){
-    cout << R"(AShell powered by Arnish!
+    cout << R"(Simpell: A Shell by Arnish!
 
 Available Commands:
 
@@ -205,15 +249,20 @@ divide <a> <b>     //Divides two numbers
 
 make <folder>     //Create a folder in current directory
 make <folder> at <path>     //Create a folder at path
-
+rename <oldname> <newname>     //Rename a file
+delete <file>     //Delete a file
 open <path>     //Open the directory/path
 
 what time     //Get current time
 what date     //Get current date
+what folder     //Get current directory
 
 text create     //create a new text file
 text open     //open a pre-existing text file
 
+play <application>     //play an application
+
+clear     //clear the terminal
 exit    //Exit the terminal
 )"<<endl;
 }
