@@ -206,7 +206,7 @@ divide <a> <b>     //Divides two numbers
 make <folder>     //Create a folder in current directory
 make <folder> at <path>     //Create a folder at path
 
-goto <path>     //Open the directory/path
+open <path>     //Open the directory/path
 
 what time     //Get current time
 what date     //Get current date
