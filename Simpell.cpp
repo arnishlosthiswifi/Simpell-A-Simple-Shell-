@@ -5,12 +5,46 @@
 #include <cstdlib>
 #include <windows.h>
 #include <ctime>
+#include <vector>
 
 using namespace std;
+
+typedef struct userVariable{
+    string name;
+    float *address;
+}userVariable;
+
+vector<userVariable> variables;
+
 int j = 0;
 int position = 0;
 int i = 0;
 string token[100];
+vector<float>UserVars;
+int VarCounter = 0;
+
+float variableCreator(string name, float value){
+    userVariable x;
+    x.name = name;
+    x.address = new float;
+    *x.address = value;
+    variables.push_back(x);
+    return *x.address;
+}
+
+float getVariable(string name)
+{
+    for(int i = 0; i < variables.size(); i++)
+    {
+        if(variables[i].name == name)
+        {
+            return *variables[i].address;
+        }
+    }
+
+    cout << "Variable not found!\n";
+    return 0;
+}
 
 string tokenizer(string text){
     int m = 0;
@@ -100,11 +134,20 @@ else if (token[0] == "add" ){
     cout << "Usage: add <number1> <number2>\n";
     }
     else{
-        x = stof(token[1]);
-        y = stof(token[2]);
+
+        if(token[1]=="variable"){
+            x = getVariable(token[2]);
+            y = getVariable(token[3]);
+        }
+        else{
+            x = stof(token[1]);
+            y = stof(token[2]);
+        }
+        
         z = x + y;
         cout << z << endl;
     }
+    
 }
 
 else if (token[0] == "sub" ){
@@ -114,8 +157,14 @@ else if (token[0] == "sub" ){
     cout << "Usage: add <number1> <number2>\n";
     }
     else{
-        x = stof(token[1]);
-        y = stof(token[2]);
+        if(token[1]=="variable"){
+            x = getVariable(token[2]);
+            y = getVariable(token[3]);
+        }
+        else{
+            x = stof(token[1]);
+            y = stof(token[2]);
+        }
         z = x - y;
         cout << z << endl;
     }
@@ -128,8 +177,14 @@ else if (token[0] == "multiply" ){
     cout << "Usage: add <number1> <number2>\n";
     }
     else{
-        x = stof(token[1]);
-        y = stof(token[2]);
+        if(token[1]=="variable"){
+            x = getVariable(token[2]);
+            y = getVariable(token[3]);
+        }
+        else{
+            x = stof(token[1]);
+            y = stof(token[2]);
+        }
         z = x * y;
         cout << z << endl;
     }
@@ -142,8 +197,14 @@ else if (token[0] == "divide" ){
     cout << "Usage: add <number1> <number2>\n";
     }
     else{
-        x = stof(token[1]);
-        y = stof(token[2]);
+        if(token[1]=="variable"){
+            x = getVariable(token[2]);
+            y = getVariable(token[3]);
+        }
+        else{
+            x = stof(token[1]);
+            y = stof(token[2]);
+        }
         z = x / y;
         cout << z << endl;
     }
@@ -172,6 +233,11 @@ else if (token[0] =="what"){
          << local->tm_mon + 1 << "/"
          << local->tm_year + 1900 << endl;
     }
+    else if(token[1]=="folder"){
+        char currentDir[MAX_PATH];
+        GetCurrentDirectoryA(MAX_PATH, currentDir);
+        cout << currentDir << endl;
+    }
 
 }
 else if(token[0]=="open"){
@@ -192,9 +258,48 @@ else if(token[0]=="text"){
         FILE *textFile = fopen(readFileName.c_str(), "r");
     }
 }
+else if(token[0]=="play" || token[0]=="run" || token[0]=="execute"){
+string program;
+program = token[1];
+    ShellExecuteA(
+    NULL,
+    "open",
+    program.c_str(),
+    NULL,
+    NULL,
+    SW_SHOWNORMAL
+);
+    
+}
+else if(token[0]=="delete"){
+    string fileName = token[1];
+    remove(fileName.c_str());
+}
+
+else if(token[0]=="clear" || token[0]=="cls"){
+    system("cls");
+}
+else if(token[0] == "rename")
+{
+    string oldName = token[1];
+    string newName = token[2];
+
+    if(rename(oldName.c_str(), newName.c_str()) == 0)
+    {
+        cout << "Renamed successfully!\n";
+    }
+    else
+    {
+        cout << "Failed to rename.\n";
+    }
+}
+else if(token[0]=="credits"){
+    printf("Developed by Arnish!\n");
+}
+
 /*==========================================================================================*/
 else if(token[0]=="help" || token[0]=="helpme"){
-    cout << R"(AShell powered by Arnish!
+    cout << R"(Simpell: A Shell by Arnish!
 
 Available Commands:
 
@@ -205,18 +310,31 @@ divide <a> <b>     //Divides two numbers
 
 make <folder>     //Create a folder in current directory
 make <folder> at <path>     //Create a folder at path
-
+rename <oldname> <newname>     //Rename a file
+delete <file>     //Delete a file
 open <path>     //Open the directory/path
 
 what time     //Get current time
 what date     //Get current date
+what folder     //Get current directory
 
 text create     //create a new text file
 text open     //open a pre-existing text file
 
+play <application>     //play an application
+
+clear     //clear the terminal
 exit    //Exit the terminal
 )"<<endl;
 }
+/*==========================================================================================*/
+/*Basic algebra functions:*/
+
+else if(token[0]=="let"){
+    variableCreator(token[1], stof(token[2]));
+}
+
+
 /*==========================================================================================*/
 else{
     printf("Error: This command does not exist. Type 'help' for more commands \n");
